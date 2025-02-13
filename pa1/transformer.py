@@ -201,12 +201,12 @@ def train_model():
     seq_length = max_len  # Number of rows in the MNIST image
     num_classes = 10 #
     model_dim = 128 #
-    eps = 1e-3 
+    eps = 1e-5 
 
     # - Set up the training settings.
     num_epochs = 20
     batch_size = 50
-    lr = 0.02
+    lr = 0.2
 
     # TODO: Define the forward graph.
     X_node = ad.Variable("X")
