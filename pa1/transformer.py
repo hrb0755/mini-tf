@@ -20,7 +20,8 @@ def transformer(X: ad.Node, nodes: List[ad.Node],
     Parameters
     ----------
     X: ad.Node
-        A node in shape (batch_size, seq_length, model_dim), denoting the input data.
+        A node in shape (batch_size, seq_length, model_dim), denoting the input data. WRONG!
+        A node in shape (batch_size, seq_length=28, *input_dim=28*), denoting the input data.
     nodes: List[ad.Node]
         Nodes you would need to initialize the transformer.
     model_dim: int
@@ -35,7 +36,20 @@ def transformer(X: ad.Node, nodes: List[ad.Node],
     """
 
     """TODO: Your code here"""
-
+    WQ, WK, WV, WO, W1, b1, W2, b2 = nodes
+    sqrt_d = model_dim ** 0.5
+    Q, K, V = ad.matmul(X, WQ), ad.matmul(X, WK), ad.matmul(X, WV)
+    att_score = ad.matmul(Q, ad.transpose(K, -1, -2)) / sqrt_d
+    att_score_norm = ad.softmax(att_score)
+    att_head_out = ad.layernorm(ad.matmul(att_score_norm, V), [seq_length, seq_length]) #Z
+    proj_head_out = ad.matmul(att_head_out, WO) # attention head out projected, Z_p
+    ffn_out = ad.matmul(
+                        ad.relu(ad.matmul(proj_head_out, W1) + b1), 
+                        W2
+                ) + b2 # relu(Z_p @ W1 + b1) @ W2 + b2
+    last_ln_out = ad.layernorm(ffn_out, [seq_length, model_dim]) # (batch_size, seq_length, num_classes)
+    transformer_out = ad.mean(last_ln_out, dim=(-1,), keepdim=False) # average pooling over sequence length, Z_p_avg
+    return transformer_out
 
 def softmax_loss(Z: ad.Node, y_one_hot: ad.Node, batch_size: int) -> ad.Node:
     """Construct the computational graph of average softmax loss over
@@ -69,7 +83,17 @@ def softmax_loss(Z: ad.Node, y_one_hot: ad.Node, batch_size: int) -> ad.Node:
     Try to think about why our softmax loss may need the batch size.
     """
     """TODO: Your code here"""
-
+    probs = ad.softmax(Z)
+    log_probs = ad.log(probs)
+    # 4. 计算交叉熵损失：loss_sample = - sum( y_one_hot * log_probs )，在类别维度上求和
+    loss_per_sample = ad.mul_by_const(
+                        ad.sum_op(ad.mul(y_one_hot, log_probs), dim=(1,), keepdim=False), # sum((B, n_class), dim=1) -> (B,)
+                        -1
+                    )
+    # 5. 将所有样本的 loss 求和，再除以 batch_size 得到平均 loss
+    total_loss = ad.sum_op(loss_per_sample, dim=(0,), keepdim=False) # (B,) -> scalar ()
+    avg_loss = ad.div_by_const(total_loss, batch_size)
+    return avg_loss
 
 
 def sgd_epoch(
