@@ -571,7 +571,11 @@ class SoftmaxOp(Op):
         """Return softmax of input along specified dimension."""
         assert len(input_values) == 1
         """TODO: your code here"""
-        return torch.softmax(input_values[0], dim=node.dim)
+        x = input_values[0]
+        x_max = torch.max(x, dim=-1, keepdim=True).values
+        x_exp = torch.exp(x - x_max) 
+        x_sum = x_exp.sum(dim=-1, keepdim=True)
+        return x_exp / x_sum
 
     def gradient(self, node: Node, output_grad: Node) -> List[Node]:
         """Given gradient of softmax node, return partial adjoint to input."""
@@ -601,7 +605,11 @@ class LayerNormOp(Op):
         """Return layer normalized input."""
         assert len(input_values) == 1
         """TODO: your code here"""
-        return torch.nn.functional.layer_norm(input_values[0], normalized_shape=node.normalized_shape, eps=node.eps)
+        x = input_values[0]
+        dims = tuple(range(-len(node.normalized_shape), 0))
+        mean = torch.mean(x, dim=dims, keepdim=True)
+        var_eps = torch.var(x, dim=dims, unbiased=False, keepdim=True) + node.eps
+        return (x - mean) / torch.sqrt(var_eps)
 
     def gradient(self, node: Node, output_grad: Node) -> List[Node]:
         """
@@ -648,7 +656,7 @@ class ReLUOp(Op):
         """Return ReLU of input."""
         assert len(input_values) == 1
         """TODO: your code here"""
-        return torch.relu(input_values[0])
+        return torch.where(input_values[0] > 0, input_values[0], 0)
 
     def gradient(self, node: Node, output_grad: Node) -> List[Node]:
         """Given gradient of ReLU node, return partial adjoint to input."""
