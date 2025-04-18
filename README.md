@@ -1,10 +1,10 @@
-# Mini-Tensorflow
+# Mini-TensorFlow
 ## Overview
-Mini-tensorflow (mini-tf) is a little project of mine that aims to build a TensorFlow-v1 like deep learning framework.
+Mini-TensorFlow (mini-tf) is a little project of mine that aims to build a TensorFlow-v1 like deep learning framework.
 
 Its current features include:
 
-- Declarative style copmutational graph definition 
+- Declarative style computational graph definition 
 - A complete set of useful operators, with forward and backward methods:
 	- +, -, *, /, <, >, ==, power and logarithm
 	- Mean, LaynerNorm, and Broadcasting
@@ -20,7 +20,7 @@ The computational backbone of this framework is (ironically) PyTorch. This is be
 
 To test it for yourself, type in terminal
 ```bash
-pip install -e ./path_to_cloned_repo
+pip install -e path_to_cloned_repo
 ``` 
 After installing the package, import it:
 ```python
