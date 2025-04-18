@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mini_tf"
+version = "0.0.1"
+description = "A mini project for creating a TensorFlow-v1-like deep learning framework"
+authors = [{name = "Ruobing Han"}]
+readme = "README.md"
+requires-python = ">=3.8"
+
+[tool.setuptools.packages.find]
+where = ["."]

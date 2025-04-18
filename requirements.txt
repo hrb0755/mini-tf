@@ -1,0 +1,5 @@
+pytest
+torch
+torchvision
+scikit-learn
+numpy

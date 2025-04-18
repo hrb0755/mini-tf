@@ -1,6 +1,6 @@
 from typing import Any, Dict, List
 import torch
-from auto_diff import *
+from mini_tf.auto_diff import *
 
 class MatMulLayerNormOp(Op):
     """Fused matrix multiplication and layer normalization operation."""
@@ -32,7 +32,7 @@ class MatMulLayerNormOp(Op):
     def compute(self, node: Node, input_values: List[torch.Tensor]) -> torch.Tensor:
         """Return the fused matmul and layer normalization result."""
         assert len(input_values) == 2
-        """TODO: your code here"""
+
         x = input_values[0] @ input_values[1]
         dims = tuple(range(-len(node.normalized_shape), 0))
         mean = torch.mean(x, dim=dims, keepdim=True)
@@ -41,7 +41,7 @@ class MatMulLayerNormOp(Op):
 
     def gradient(self, node: Node, output_grad: Node) -> List[Node]:
         """Given gradient of fused node, return partial adjoints to each input."""
-        """TODO: your code here"""
+
         # raise NotImplementedError
         A, B = node.inputs
 
@@ -88,7 +88,7 @@ class MatMulSoftmaxOp(Op):
     def compute(self, node: Node, input_values: List[torch.Tensor]) -> torch.Tensor:
         """Return the fused matmul and softmax result."""
         assert len(input_values) == 2
-        """TODO: your code here"""
+
         x = input_values[0] @ input_values[1]
         x_max = torch.max(x, dim=-1, keepdim=True).values
         x_exp = torch.exp(x - x_max) 
@@ -98,7 +98,7 @@ class MatMulSoftmaxOp(Op):
     def gradient(self, node: Node, output_grad: Node) -> List[Node]:
         """Given gradient of fused node, return partial adjoints to each input."""
         # First compute the forward pass result we need for softmax gradient
-        """TODO: your code here"""
+
         A, B = node.inputs
 
         dim = node.dim

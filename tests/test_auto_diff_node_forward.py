@@ -4,7 +4,7 @@ import torch
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-import auto_diff as ad
+import mini_tf.auto_diff as ad
 
 def check_compute_output(
     node: ad.Node, input_values: List[torch.Tensor], expected_output: torch.Tensor

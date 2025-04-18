@@ -5,7 +5,7 @@ from typing import Dict, List
 import sys
 from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
-import auto_diff as ad
+import mini_tf.auto_diff as ad
 from fused_ops import matmul_layernorm, matmul_softmax
 
 
